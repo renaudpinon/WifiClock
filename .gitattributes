@@ -3,3 +3,6 @@
 
 data/* linguist-vendored
 misc/* linguist-vendored
+
+*.cpp linguist-language=Arduino
+*.h linguist-language=Arduino
