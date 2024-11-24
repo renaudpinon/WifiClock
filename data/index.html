@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+		<title>Wifi Clock - Settings</title>
+
+		<link rel="stylesheet" href="css/all.css">
+
+		<script src="js/all.min.js"></script>
+
+		<script>
+		$(function() {
+			$('.sidenav').sidenav();
+			$('.tabs').tabs();
+			$('select').formSelect();
+
+			// Time tab initialization:
+			NTPServersInit('%Settings_TimeServer%');
+
+			TimeZonesInit('%Settings_SelectedTimezoneId%');
+			('%Settings_SelectedTimezoneId%' == '255') ? $('#rdioTimezoneCustom').prop('checked', true) : $('#rdioTimezonePredefined').prop('checked', true);
+			TimezoneTypeChange('%Settings_SelectedTimezoneId%' == '255' ? 'rdioTimezoneCustom' : 'rdioTimezonePredefined');
+			$('#chkEnableDaylightSaving,#chkEnableDaylightSavingCustom').prop('checked', '%Settings_IsDaylightTimeSaving%' == 'true');
+			
+			$('.grpTimezoneType').on('change', function() {
+				TimezoneTypeChange($(this).attr('id'));
+			});
+
+			SelectCreateMonthRule('stdMonth', '%Settings_STD_Month%');
+			SelectCreateMonthRule('sdlMonth', '%Settings_SDL_Month%');
+
+			SelectCreateWeekRule('stdWeek', '%Settings_STD_Week%');
+			SelectCreateWeekRule('sdlWeek', '%Settings_SDL_Week%');
+
+			SelectCreateDayOfWeekRule('stdDayOfWeek', '%Settings_STD_DayOfWeek%');
+			SelectCreateDayOfWeekRule('sdlDayOfWeek', '%Settings_SDL_DayOfWeek%');
+
+			SelectCreateHourRule('stdHour', '%Settings_STD_Hour%');
+			SelectCreateHourRule('sdlHour', '%Settings_SDL_Hour%');
+
+			EnableCustomDaylightSaving();
+			
+			// Color tab initialization:
+			ColorPickerInit('%Settings_Red%', '%Settings_Green%', '%Settings_Blue%');
+			LuminosityControlInit('%Settings_LuminosityMin%', '%Settings_LuminosityMax%', '%Settings_IsLuminosityEnabled%');
+
+			// Network tab initialization:
+			PasswordConfirmationInit('httpPassword');
+			PasswordConfirmationInit('wifiPassword');
+			
+		});
+		</script>
+
+	</head>
+
+	<body>
+		<nav class="nav-extended light-blue lighten-1" role="navigation">
+			<div class="nav-wrapper">
+			  <ul class="right hide-on-med-and-down">
+				<li><h5>Wifi Clock&nbsp;</h5></li>
+			  </ul>
+			</div>
+
+			<div class="nav-content">
+				<ul class="tabs tabs-transparent row">
+					<li class="tab col s4"><a class="active" href="#tabTime">Time</a></li>
+					<li class="tab col s4"><a href="#tabColors">Colors</a></li>
+					<li class="tab col s4"><a href="#tabNetwork">Network</a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<main class="container">
+			<br/>
+			<form id="frm" method="post" action="action.html">
+				<div id="tabTime" class="tab-element">
+					<div class="row">
+						<div class="input-field col s12">
+							<select id="ntpServer" name="Settings_TimeServer"></select>
+							<label>Time Server</label>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col s6">
+							<label>
+								<input id="rdioTimezonePredefined" class="with-gap grpTimezoneType" name="grpTimezoneType" type="radio" value="0" checked />
+								<span>Predefined Time Zone</span>
+							</label>
+						</div>
+						<div class="col s6">
+							<label>
+								<input id="rdioTimezoneCustom" class="with-gap grpTimezoneType" name="grpTimezoneType" type="radio" value="1" />
+								<span>Custom Time Zone</span>
+							</label>
+						</div>
+					</div>
+
+					<div id="grpTimezonePredefined" class="row hidden">
+						<div class="input-field col s8">
+							<select id="timezone" name="Settings_SelectedTimezoneId" onchange="javascript: TimeZonesChange();"></select>
+							<label>Time Zone</label>
+						</div>
+
+						<div class="input-field col s4">
+							<label>
+								<input id="chkEnableDaylightSaving" name="Settings_IsDaylightTimeSaving" type="checkbox" class="filled-in" checked="checked" />
+								<span>Enable Daylight Saving Time</span>
+							</label>
+						</div>
+					</div>
+
+					<div id="grpTimezoneCustom" class="row hidden">
+						<fieldset class="row">
+							<legend>Standard Time Change Rule</legend>
+							<div class="input-field col s2">
+								<select id="stdMonth" name="Settings_STD_Month"></select>
+								<label>Month</label>
+							</div>
+
+							<div class="input-field col s2">
+								<select id="stdWeek" name="Settings_STD_Week">
+								</select>
+								<label>Week</label>
+							</div>
+
+							<div class="input-field col s2">
+								<select id="stdDayOfWeek" name="Settings_STD_DayOfWeek">
+								</select>
+								<label>Day of Week</label>
+							</div>
+
+							<div class="input-field col s2">
+								<select id="stdHour" name="Settings_STD_Hour"></select>
+								<label>Hour</label>
+							</div>
+
+							<div class="input-field col s4">
+								<input placeholder="Offset from UTC (in minutes. Ex: -120)" id="stdOffset" name="Settings_STD_Offset" type="number" class="validate" value="%Settings_STD_Offset%">
+								<label for="stdOffset">Offset from UTC (in minutes)</label>
+								<span class="helper-text" data-error="This field is not optional" data-success=""></span>
+							</div>
+
+							<div class="row">
+								<p class="grey-text text-italic">Please specify a month, week, day and hour even if there's no daylight saving time.</p>
+							</div>
+							
+						</fieldset>
+
+						<fieldset id="" class="row">
+							<legend>Summer Daylight Change Rule</legend>
+
+							<div class="row">
+								<div class="col s12">
+									<label>
+										<input id="chkEnableDaylightSavingCustom" name="Settings_IsDaylightTimeSaving" type="checkbox" class="filled-in" checked="checked" onchange="javascript: EnableCustomDaylightSaving();" />
+										<span>Enable Daylight Saving Time</span>
+									</label>
+								</div>
+							</div>
+							
+							<div id="fldSummerDaylightChangeRule" class="row">
+								<div class="input-field col s2">
+									<select id="sdlMonth" name="Settings_SDL_Month"></select>
+									<label>Month</label>
+								</div>
+
+								<div class="input-field col s2">
+									<select id="sdlWeek" name="Settings_SDL_Week">
+									</select>
+									<label>Week</label>
+								</div>
+
+								<div class="input-field col s2">
+									<select id="sdlDayOfWeek" name="Settings_SDL_DayOfWeek">
+									</select>
+									<label>Day of Week</label>
+								</div>
+
+								<div class="input-field col s2">
+									<select id="sdlHour" name="Settings_SDL_Hour"></select>
+									<label>Hour</label>
+								</div>
+
+								<div class="input-field col s4">
+									<input placeholder="Offset from UTC (in minutes. Ex: -60)" id="sdlOffset" name="Settings_SDL_Offset" type="number" class="validate" value="%Settings_SDL_Offset%">
+									<label for="sdlOffset">Offset from UTC (in minutes)</label>
+									<span class="helper-text" data-error="This field is not optional" data-success=""></span>
+								</div>
+							</div>
+							
+						</fieldset>
+
+					</div>
+						
+				</div>
+				
+				<div id="tabColors" class="tab-element">
+					<div class="row">
+						<div class="col m4 s6">	
+							<p class="range-field"><input id="red" name="Settings_Red" type="range" class="custom-slider colorpicker"  min="0" max="255" value="0"/></p>
+							<p class="range-field"><input id="green" name="Settings_Green" type="range" class="custom-slider colorpicker"  min="0" max="255" value="0"/></p>
+							<p class="range-field"><input id="blue" name="Settings_Blue" type="range" class="custom-slider colorpicker"  min="0" max="255" value="0"/></p>
+						</div>
+
+						<div class="col m4 s6">
+							<div id="result" class="z-depth-3"></div>
+						</div>
+
+						<div class="col m4 s12">
+							<div class="row" style="margin-top: 20px;">
+								<div class="col s12">
+									<label>
+										<input id="chkLuminosityControl" name="Settings_IsLuminosityEnabled" type="checkbox" class="filled-in" checked="checked" />
+										<span>Enable Luminosity Control</span>
+									</label>
+								</div>
+								<div class="col s12"><p class="text-italic grey-text">LED Luminosity is function of ambient luminosity.</p></div>
+							</div>
+
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="sldLuminosity" type="hidden" name="Settings_Luminosity" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="tabNetwork" class="row tab-element">
+					<fieldset class="row">
+						<legend>Wifi Network</legend>
+						<div class="col s2 center">
+							<img src="img/wifi.png" style="width: 32px; height: 26px; margin-top: 16px;"/>
+						</div>
+						<div class="input-field col s10">
+							<input id="WifiSSID" name="Settings_WifiSSID" placeholder="SSID" type="text" class="validate" required value="%Settings_WifiSSID%" maxlength="32">
+							<label for="SSID">Wifi SSID</label>
+						</div>
+						<div class="input-field col s10 offset-s2">
+							<input id="wifiPassword" name="Settings_WifiPassword" placeholder="Empty if no changes" type="password" class="validate" value="" maxlength="64">
+							<label for="wifiPassword">Wifi Password (empty if no changes)</label>
+						</div>
+						<div class="input-field col s10 offset-s2">
+							<input id="wifiPasswordConfirmation" placeholder="Empty if no changes" type="password" class="validate" value="" maxlength="64">
+							<label for="wifiPasswordConfirmation" data-error="Password not matching" data-success="Password Matching">Password Confirmation (empty if no changes)</label>
+							<span class="helper-text" data-error="Passwords are not matching" data-success=""></span>
+						</div>
+					</fieldset>
+
+					<fieldset class="row">
+						<legend>Settings Page Connection</legend>
+						<div class="col s2 center">
+							<img src="img/settings.png" style="width: 32px; height: 32px; margin-top: 16px;"/>
+						</div>
+						<div class="input-field col s10">
+							<input type="hidden" id="httpLoginBackup" value="%Settings_HttpLogin%" />
+							<input placeholder="Login" id="httpLogin" name="Settings_HttpLogin" type="text" class="validate" required value="%Settings_HttpLogin%" maxlength="25">
+							<label for="httpLogin">Login</label>
+						</div>
+						<div class="input-field col s10 offset-s2">
+							<input id="httpPassword" name="Settings_HttpPassword" placeholder="Empty if no changes" type="password" class="validate" value="" maxlength="25">
+							<label for="httpPassword">Password (empty if no changes)</label>
+						</div>
+						<div class="input-field col s10 offset-s2">
+							<input id="httpPasswordConfirmation" placeholder="Empty if no changes" type="password" class="validate" value="" maxlength="25">
+							<label for="httpPasswordConfirmation">Password Confirmation (empty if no changes)</label>
+							<span class="helper-text" data-error="Passwords are not matching" data-success=""></span>
+						</div>
+						<div class="col s12">
+							<p class="text-italic orange-text">Warning: Don't loose the connection informations as they can't be reset !</p>
+						</div>
+					</fieldset>
+				</div>
+
+				<div class="row">
+					<div class="col s12 center"><a href="#" class="btn-large waves-effect waves-light" onclick="javascript:Validate();">Update</a></div>
+				</div>
+
+			</form>
+
+		</main>
+
+	</body>
+</html>
