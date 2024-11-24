@@ -21,4 +21,4 @@ En cours. Code écrit totalement mais matériel pas encore monté.
 # TODO
 
 - Schéma électronique de montage
-- correction problème voltage insuffisant lorsque le montage est alimenté par un transformateur 220V AC => 5V DC (fonctionne avec un USB d'ordinateur).
+- correction problème voltage insuffisant lorsque le montage est alimenté par un transformateur 220V AC => 5V DC (fonctionne correctement avec un USB d'ordinateur).
